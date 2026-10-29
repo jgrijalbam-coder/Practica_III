@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Vista - Asistencia auditiva'),
     );
   }
 }
@@ -104,7 +104,25 @@ class _MyHomePageState extends State<MyHomePage> {
           // wireframe for each widget.
           mainAxisAlignment: .center,
           children: [
-            const Text('You have pushed the button this many times:'),
+            const Text("Bienvenido a VISTA", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.teal)),
+            const SizedBox(height: 16),
+
+            const Text("Asistencia auditiva para personas con discapacidad auditiva",textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed:(){
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Alerta de prueba:Todavia no hay sonido real'))
+                );
+              
+
+              },
+              child: const Text('Activar sonido'),
+            ),
+
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
