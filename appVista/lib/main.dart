@@ -1,139 +1,216 @@
+
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const VistaApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class VistaApp extends StatelessWidget {
+  const VistaApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'VISTA',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF00695C),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF5F7F6),
       ),
-      home: const MyHomePage(title: 'Vista - Asistencia auditiva'),
+      home: const VistaHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class VistaHomePage extends StatefulWidget {
+  const VistaHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<VistaHomePage> createState() => _VistaHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _VistaHomePageState extends State<VistaHomePage> {
+  // Estado inicial de la asistencia.
+  bool _asistenciaActiva = false;
 
-  void _incrementCounter() {
+  // Cambia entre activada y detenida.
+  void _alternarAsistencia() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _asistenciaActiva = !_asistenciaActiva;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final Color colorEstado = _asistenciaActiva
+        ? const Color(0xFF237A3B)
+        : const Color(0xFF52616B);
+
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
+        backgroundColor: const Color(0xFF00695C),
+        foregroundColor: Colors.white,
+        title: const Row(
           children: [
-            const Text("Bienvenido a VISTA", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.teal)),
-            const SizedBox(height: 16),
-
-            const Text("Asistencia auditiva para personas con discapacidad auditiva",textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed:(){
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Alerta de prueba:Todavia no hay sonido real'))
-                );
-              
-
-              },
-              child: const Text('Activar sonido'),
-            ),
-
+            Icon(Icons.hearing, size: 30),
+            SizedBox(width: 10),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'VISTA',
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(
+                    Icons.accessibility_new,
+                    size: 78,
+                    color: Color(0xFF00695C),
+                  ),
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    'Bienvenido a VISTA',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF00695C),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  const Text(
+                    'Asistencia auditiva para tu movilidad',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+
+                  // Tarjeta que muestra el estado actual.
+                  Semantics(
+                    liveRegion: true,
+                    child: Card(
+                      color: _asistenciaActiva
+                          ? const Color(0xFFE8F5E9)
+                          : const Color(0xFFECEFF1),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: [
+                            Icon(
+                              _asistenciaActiva
+                                  ? Icons.check_circle
+                                  : Icons.pause_circle_filled,
+                              color: colorEstado,
+                              size: 52,
+                            ),
+                            const SizedBox(height: 12),
+
+                            Text(
+                              _asistenciaActiva
+                                  ? 'Asistencia ACTIVADA'
+                                  : 'Asistencia DETENIDA',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 21,
+                                fontWeight: FontWeight.bold,
+                                color: colorEstado,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            Text(
+                              _asistenciaActiva
+                                  ? 'El modo de demostración está activo.'
+                                  : 'Pulsa el botón para iniciar la demostración.',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Botón que cambia el estado de la interfaz.
+                  SizedBox(
+                    height: 60,
+                    child: FilledButton.icon(
+                      onPressed: _alternarAsistencia,
+                      icon: Icon(
+                        _asistenciaActiva
+                            ? Icons.stop_circle_outlined
+                            : Icons.play_arrow,
+                        size: 28,
+                      ),
+                      label: Text(
+                        _asistenciaActiva
+                            ? 'Detener asistencia'
+                            : 'Activar asistencia',
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  const Text(
+                    'Acerca de esta versión',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    'Esta versión permite probar la interfaz y el '
+                    'cambio de estado de la asistencia. La cámara, '
+                    'la detección de obstáculos, el GPS y el audio '
+                    'real todavía no están implementados.',
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    'VISTA es un prototipo experimental y no sustituye '
+                    'el bastón, el perro guía ni otras ayudas de movilidad.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
