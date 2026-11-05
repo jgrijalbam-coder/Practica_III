@@ -12,7 +12,7 @@ CREATE TABLE usuario (
 CREATE TABLE configuracion (
   id_config           INTEGER PRIMARY KEY AUTOINCREMENT,
   id_usuario          INTEGER NOT NULL UNIQUE
-                        REFERENCES usuario (id_usuario) ON DELETE CASCADE,
+                       REFERENCES usuario (id_usuario) ON DELETE CASCADE,
   sensibilidad        REAL NOT NULL DEFAULT 0.5
                         CHECK (sensibilidad IN (0.4, 0.5, 0.7)),
   velocidad_voz       REAL NOT NULL DEFAULT 1.2
