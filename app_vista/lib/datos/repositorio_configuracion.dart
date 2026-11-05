@@ -1,28 +1,11 @@
-/// CONTRATO de datos (María José).
-class Configuracion {
-  double sensibilidadDeteccion; // 0.4 | 0.5 | 0.7
-  double velocidadVoz; // 0.8 a 2.0
-  int volumenMaestro; // 0 a 100
+import 'modelos_datos.dart';
 
-  Configuracion({
-    this.sensibilidadDeteccion = 0.5,
-    this.velocidadVoz = 1.2,
-    this.volumenMaestro = 60,
-  });
-}
-
+/// CONTRATO de RF-10. Los servicios de la semana 2 dependen de esta interfaz.
 abstract class RepositorioConfiguracion {
-  Future<Configuracion> leer();
-  Future<void> guardar(Configuracion config);
-}
+  /// Configuracion del usuario, o null si no tiene.
+  Future<Configuracion?> obtener(int idUsuario);
 
-/// Versión en memoria; se reemplaza por SQLite.
-class RepositorioConfiguracionMemoria implements RepositorioConfiguracion {
-  Configuracion _c = Configuracion();
-
-  @override
-  Future<Configuracion> leer() async => _c;
-
-  @override
-  Future<void> guardar(Configuracion config) async => _c = config;
+  /// Inserta o actualiza (una por usuario) y devuelve lo guardado.
+  /// Lanza RestriccionVioladaError (valor fuera de rango) o UsuarioInexistenteError.
+  Future<Configuracion> guardar(Configuracion configuracion);
 }
