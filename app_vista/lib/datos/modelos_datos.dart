@@ -24,6 +24,11 @@ class Configuracion {
   final ModoTonos modoTonos;
   final int volumenMaestro; // 50 a 95
 
+  /// Ultima escritura (columna `fecha_actualizacion`). La fija el repositorio
+  /// con su reloj; el servicio no la manipula. Null solo en objetos que aun no
+  /// se han guardado.
+  final DateTime? fechaActualizacion;
+
   const Configuracion({
     this.idConfig,
     required this.idUsuario,
@@ -31,6 +36,7 @@ class Configuracion {
     this.velocidadVoz = 1.2,
     this.modoTonos = ModoTonos.frecuenciaSimple,
     this.volumenMaestro = 60,
+    this.fechaActualizacion,
   });
 }
 

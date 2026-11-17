@@ -16,3 +16,12 @@ class UsuarioInexistenteError extends ErrorPersistencia {
 class RestriccionVioladaError extends ErrorPersistencia {
   const RestriccionVioladaError(super.codigo, super.mensaje);
 }
+
+/// Caso concreto de restriccion violada que el negocio necesita distinguir del
+/// resto: ya existe un destino con esa etiqueta para el usuario
+/// (UNIQUE (id_usuario, etiqueta) del esquema). Hereda de RestriccionVioladaError
+/// para no romper el contrato previo (ERR-16).
+class EtiquetaDuplicadaError extends RestriccionVioladaError {
+  const EtiquetaDuplicadaError([String etiqueta = ''])
+      : super('ERR-16', 'Ya existe un destino con la etiqueta "$etiqueta".');
+}

@@ -1,5 +1,6 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 import 'base_datos.dart';
+import 'errores_persistencia.dart';
 import 'modelos_datos.dart';
 import 'repositorio_destinos.dart';
 import 'traduccion_errores_sqlite.dart';
@@ -40,6 +41,14 @@ class RepositorioDestinosSqlite implements RepositorioDestinos {
         longitud: d.longitud,
       );
     } on DatabaseException catch (e) {
+      // La UNIQUE (id_usuario, etiqueta) es la unica restriccion UNIQUE de esta
+      // tabla: si el mensaje la nombra, el negocio necesita distinguirla del
+      // resto de fallos para responder 409 en lugar de tratar el caso como
+      // fallo tecnico.
+      final texto = e.toString();
+      if (texto.contains('UNIQUE constraint failed') && texto.contains('etiqueta')) {
+        throw EtiquetaDuplicadaError(d.etiqueta);
+      }
       throw traducirErrorBd(e);
     }
   }

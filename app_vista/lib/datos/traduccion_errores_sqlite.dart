@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 import 'errores_persistencia.dart';
 
 /// Convierte un error de SQLite en un error de persistencia de VISTA.

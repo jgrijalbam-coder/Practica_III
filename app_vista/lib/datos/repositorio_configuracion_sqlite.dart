@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqlite_api.dart';
 import 'base_datos.dart';
 import 'modelos_datos.dart';
 import 'repositorio_configuracion.dart';
@@ -39,6 +39,7 @@ ON CONFLICT(id_usuario) DO UPDATE SET
       velocidadVoz: (f['velocidad_voz'] as num).toDouble(),
       modoTonos: ModoTonos.desdeBd(f['modo_tonos'] as String),
       volumenMaestro: f['volumen_maestro'] as int,
+      fechaActualizacion: DateTime.tryParse(f['fecha_actualizacion'] as String? ?? ''),
     );
   }
 

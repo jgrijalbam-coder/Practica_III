@@ -25,6 +25,7 @@ class RepositorioConfiguracionMemoria implements RepositorioConfiguracion {
       velocidadVoz: c.velocidadVoz,
       modoTonos: c.modoTonos,
       volumenMaestro: c.volumenMaestro,
+      fechaActualizacion: c.fechaActualizacion,
     );
     _datos[c.idUsuario] = guardada;
     return guardada;
@@ -46,7 +47,7 @@ class RepositorioDestinosMemoria implements RepositorioDestinos {
         x.idUsuario == d.idUsuario &&
         x.etiqueta.toLowerCase() == d.etiqueta.toLowerCase());
     if (repetida) {
-      throw const RestriccionVioladaError('ERR-16', 'Ya existe un registro con ese valor.');
+      throw EtiquetaDuplicadaError(d.etiqueta);
     }
     final id = _siguienteId++;
     final nuevo = DestinoFrecuente(

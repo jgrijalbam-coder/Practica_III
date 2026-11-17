@@ -35,11 +35,20 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   sqflite: ^2.4.5
+  # API SQLite comun (Dart puro): la usan los repositorios y el servidor de la
+  # semana 14, que corre con "dart run" sin motor Flutter.
+  sqflite_common: ^2.5.4
+  sqflite_common_ffi: ^2.4.5
   path: ^1.9.1
+  # API HTTP de la semana 14 (servicio y enrutador).
+  shelf: ^1.4.2
+  shelf_router: ^1.1.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Cliente HTTP para las pruebas de API y la medicion de RFN-08.
+  http: ^1.2.2
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -47,7 +56,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  sqflite_common_ffi: ^2.4.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
