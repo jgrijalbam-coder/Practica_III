@@ -1,79 +1,184 @@
-# VISTA - Semana 13: base de datos y persistencia del corte vertical
+# VISTA - Semana 14: servicios y API
 
-Arquitectura de Sistemas I - Universidad Central. Equipo: Jessica Mariana Pastor Galindo, Luisa Fernanda Zambrano, Maria Jose Perez Rengifo y Jeffrey Adrian Grijalva Muñoz.
+Arquitectura de Sistemas I - Universidad Central. Esta entrega implementa la lógica de negocio y la API de **RF-10** (configurar preferencias) y **RF-DF** (destinos frecuentes, identificador provisional por confirmar). La prioridad se conserva: RF-10 prioridad 1 y RF-DF prioridad 2.
 
-## 1. Alcance de la semana
-Dos RF, en este orden: **RF-10** (configurar preferencias) y **RF-DF** (destinos frecuentes, HU-8; numero de RF provisional, por confirmar). Esta semana solo se implementa la base y el acceso a datos. **Queda fuera:** reglas de negocio, API, pantallas, voz, calculo de rutas, sincronizacion con la nube y permisos del acompanante (semanas 2 y 3).
+La arquitectura es **API Shelf → servicios → repositorios → SQLite**. Los handlers traducen HTTP y delegan las reglas a los servicios; el SQL permanece en los repositorios. No se incluyen pantallas, voz, cálculo de rutas, nube ni permisos de acompañante.
 
-## 2. Fichas RF-RNF
+## 1. Servicios y reglas
 
-### RF-10
-| Elemento | Respuesta del equipo |
+### RF-10: configurar preferencias
+
+| Elemento | Contrato |
 |---|---|
-| Identificador y enunciado | RF-10. El sistema debe permitir configurar sensibilidad de deteccion (0.4 / 0.5 por defecto / 0.7), velocidad de voz (0.8x a 2.0x, por defecto 1.2x), modo de tonos (frecuencia simple o espacializada) y volumen maestro (50 a 95). |
-| Actor y resultado esperado | Persona con discapacidad visual. Sus preferencias quedan guardadas y se recuperan en la siguiente apertura de la app. |
-| Prioridad y justificacion | **Prioridad 1.** Valor medio (adapta el sistema a cada persona). Alta relevancia arquitectonica: la sensibilidad se aplica en caliente al pipeline (RFN-01) y estrena la capa de datos con el patron Repository. Dependencia: crea `usuario` y `configuracion`, que RF-DF reutiliza. |
-| RNF asociados | RFN-01, RFN-03, RFN-04, RFN-06, RFN-07, RFN-08 |
-| ISO/IEC 25010:2023 | Ver matriz (seccion 3) |
-| Condicion, medida y umbral | Ver matriz (seccion 3) |
-| Prueba, evidencia y semana | Ver matriz (seccion 3) |
-| Datos y operaciones | Tablas `usuario` y `configuracion`. Operaciones: `obtener(idUsuario)` y `guardar(configuracion)` (inserta o actualiza). |
-| Resultado semana 1 y pendientes | Probado: lectura, escritura, persistencia en conexion nueva, usuario inexistente y valores fuera de rango. Pendiente: servicio con RN-06/RN-14 y confirmacion del usuario (semana 2), pantalla accesible (semana 3). |
+| Servicio | `ConfiguracionService` |
+| Entrada | `obtener(idUsuario)`; `guardar(idUsuario, DatosConfiguracion)`. |
+| Reglas | El id debe ser entero positivo y el usuario debe existir. Sensibilidad: 0.4, 0.5 o 0.7. Velocidad de voz: 0.8–2.0. Modo: `frecuencia_simple` o `espacializada`. Volumen maestro: 50–95. En la API, los campos omitidos al guardar toman los valores por defecto: 0.5, 1.2, `frecuencia_simple` y 60. |
+| Repositorios | `RepositorioUsuarios.buscarPorId`; `RepositorioConfiguracion.obtener` y `RepositorioConfiguracion.guardar`. |
+| Resultado válido | `obtener` devuelve las preferencias existentes. `guardar` inserta o actualiza y devuelve los datos leídos después de escribir. |
+| Rechazo esperado | Entrada inválida: `ValidacionError` (ERR-15). Usuario inexistente: `UsuarioNoEncontrado` (ERR-16). Usuario sin preferencias: `ConfiguracionNoEncontrada` (ERR-16). |
+| RN-06 y RN-14 | No se encontró su texto en el README o los archivos disponibles. Queda un TODO en `lib/dominio/reglas_configuracion.dart`; no se inventan reglas. |
 
-### RF-DF (provisional)
-| Elemento | Respuesta del equipo |
+### RF-DF: destinos frecuentes
+
+| Elemento | Contrato |
 |---|---|
-| Identificador y enunciado | RF-DF (por confirmar el numero). El sistema debe permitir guardar y consultar destinos frecuentes con una etiqueta (por ejemplo "Casa", "Trabajo") para iniciar la navegacion hacia ellos (HU-8). |
-| Actor y resultado esperado | Persona con discapacidad visual. El destino queda guardado con un identificador real y se recupera por id o en la lista del usuario. |
-| Prioridad y justificacion | **Prioridad 2.** Valor medio. Menor riesgo arquitectonico que RF-10. Depende de la tabla `usuario` que RF-10 crea, y es pequeno y viable para tres semanas. |
-| RNF asociados | RFN-03, RFN-04, RFN-06, RFN-07, RFN-08 |
-| ISO/IEC 25010:2023 | Ver matriz |
-| Condicion, medida y umbral | Ver matriz |
-| Prueba, evidencia y semana | Ver matriz |
-| Datos y operaciones | Tabla `destino_frecuente` (UNIQUE por usuario y etiqueta, sin distinguir mayusculas). Operaciones: `guardar` (devuelve id real), `buscarPorId` (null si no existe), `listarPorUsuario`. |
-| Resultado semana 1 y pendientes | Probado: guardar, recuperar en conexion nueva, id inexistente, etiqueta repetida y usuario inexistente. Pendiente: servicio, seleccion por voz y calculo de ruta (semanas 2 y 3). |
+| Servicio | `DestinosService` |
+| Entrada | `guardar(idUsuario, etiqueta, latitud, longitud)`; `buscarPorId(idDestino)`; `listarPorUsuario(idUsuario)`. |
+| Reglas | Id positivo; usuario existente al guardar y listar; etiqueta no vacía después de recortar; latitud entre -90 y 90; longitud entre -180 y 180. La etiqueta es única por usuario sin distinguir mayúsculas. |
+| Repositorios | `RepositorioUsuarios.buscarPorId`; `RepositorioDestinos.guardar`, `buscarPorId` y `listarPorUsuario`. |
+| Resultado válido | Guardar devuelve el destino con id real; buscar devuelve el destino; listar puede devolver una lista vacía. |
+| Rechazo esperado | Entrada inválida: `ValidacionError` (ERR-15). Usuario inexistente: `UsuarioNoEncontrado` (ERR-16). Destino ausente: `DestinoNoEncontrado` (ERR-16). Etiqueta repetida: `EtiquetaDuplicada` (ERR-16; HTTP 409). |
+| Dirección | El esquema tiene una columna `direccion NOT NULL`, aunque el contrato solicitado para el endpoint no la exige. Si el JSON no la incluye, el servicio guarda un texto derivado de las coordenadas. No se devuelve en el JSON. |
+
+Los servicios dependen de interfaces de repositorio inyectadas por constructor y no conocen HTTP. Cada operación SQL es una sentencia atómica que SQLite confirma o revierte. `BaseDatos` posee la conexión: quien la abre es responsable de llamar `BaseDatos.cerrar()`. En el servidor, el proceso cierra la conexión cuando termina.
+
+## 2. Contratos de API
+
+Base local: `http://localhost:8080`. Las respuestas son JSON; los errores tienen la forma `{"detail":"..."}`. Los fallos internos se registran en el servidor, responden HTTP 500 con un mensaje genérico y no exponen detalles técnicos.
+
+| RF | Método y ruta | Entrada | Éxito | Errores | Servicio |
+|---|---|---|---|---|---|
+| RF-10 | GET `/api/usuarios/{id}/configuracion` | Id positivo en ruta | 200, configuración | 400 id inválido; 404 usuario o configuración ausente; 500 interno | `ConfiguracionService.obtener` |
+| RF-10 | PUT `/api/usuarios/{id}/configuracion` | JSON con campos de configuración; se pueden omitir campos para usar valores por defecto | 200, configuración guardada | 400 JSON/campo/rango inválido; 404 usuario ausente; 500 interno | `ConfiguracionService.guardar` |
+| RF-DF | POST `/api/usuarios/{id}/destinos` | JSON con `etiqueta`, `latitud`, `longitud`; `direccion` opcional por la restricción del esquema | 201, destino con id real | 400 formato/rango; 404 usuario ausente; 409 etiqueta duplicada; 500 interno | `DestinosService.guardar` |
+| RF-DF | GET `/api/destinos/{id}` | Id positivo en ruta | 200, destino | 400 id inválido; 404 destino ausente; 500 interno | `DestinosService.buscarPorId` |
+| RF-DF | GET `/api/usuarios/{id}/destinos` | Id positivo en ruta | 200, lista (puede estar vacía) | 400 id inválido; 404 usuario ausente; 500 interno | `DestinosService.listarPorUsuario` |
+
+Configuración de ejemplo:
+
+```json
+{
+  "sensibilidad": 0.7,
+  "velocidad_voz": 1.5,
+  "modo_tonos": "espacializada",
+  "volumen_maestro": 80,
+  "fecha_actualizacion": "2026-11-17T10:00:00.000"
+}
+```
+
+Destino de ejemplo:
+
+```json
+{
+  "id_destino": 3,
+  "id_usuario": 1,
+  "etiqueta": "Parque",
+  "latitud": 4.62,
+  "longitud": -74.08
+}
+```
 
 ## 3. Matriz RF-RNF
-Los RNF se conservan con los identificadores del documento del segundo corte (RFN-01 a RFN-05). **RFN-06, RFN-07 y RFN-08 son nuevos**, derivados de la persistencia; **RFN-04 se ajusta** para aplicarse tambien a los datos personales guardados. Los umbrales son propuestos por el equipo.
 
-| RNF | RF | ISO/IEC 25010:2023 | Condicion de prueba | Medida y umbral | Evidencia | Semana |
-|---|---|---|---|---|---|---|
-| RFN-01 | RF-10 | Eficiencia de desempeno / comportamiento temporal | Cambiar la sensibilidad sin reiniciar el pipeline | Alerta en menos de 300 ms (pipeline local 200 ms o menos, RF-09) | Mediciones en el telefono | 3 (pendiente) |
-| RFN-03 | RF-10, RF-DF | Capacidad de interaccion / inclusividad (accesibilidad, NTC 5854) | Usar las pantallas con lector de pantalla y alto contraste | Todos los controles con etiqueta accesible y confirmacion por voz | Prueba manual con TalkBack y captura | 3 (pendiente) |
-| RFN-04 (ajustado) | RF-10, RF-DF | Seguridad / confidencialidad (Ley 1581 de 2012) | Revisar esquema y datos de prueba | La contrasena solo se guarda como hash; direcciones solo locales; sin credenciales reales en el repositorio | `db/schema.sql`, `db/seed.sql` | 1 (revision) y 3 |
-| RFN-06 (nuevo) | RF-10, RF-DF | Mantenibilidad / capacidad para ser probado | Probar los servicios con un repositorio simulado, sin base real | Una prueba de resultado valido y otra de rechazo o ausencia por servicio | `repositorios_memoria.dart` y prueba de contrato | Contrato en 1, pruebas de servicios en 2 |
-| RFN-07 (nuevo) | RF-10, RF-DF | Fiabilidad / recuperabilidad | Guardar 10 destinos, cerrar la conexion y abrir una nueva | 10 de 10 recuperados (100 %) y configuracion identica | `test/persistencia_test.dart` | 1 |
-| RFN-08 (nuevo) | RF-10, RF-DF | Eficiencia de desempeno / comportamiento temporal | 20 lecturas consecutivas de configuracion en la base de prueba, un cliente | Cada lectura en 50 ms o menos (unos 17 % del presupuesto de 300 ms de RFN-01) | `test/persistencia_test.dart` | 1 (datos) y 2 (API) |
+Los identificadores RFN-02 y RFN-05 se conservan, pero sus enunciados no aparecen en el README previo ni en los archivos revisados; quedan pendientes de recuperar del documento fuente. RFN-06, RFN-07 y RFN-08 corresponden a criterios añadidos para esta entrega. Las etiquetas ISO se mantienen cuando están documentadas; no se infieren para los criterios pendientes.
 
-## 4. Datos y persistencia
-**Tablas** (`db/schema.sql`): `usuario`, `configuracion` (1:1 con usuario) y `destino_frecuente` (N:1 con usuario). Claves foraneas con borrado en cascada, restricciones CHECK de rango y UNIQUE (id_usuario, etiqueta).
+| RF/RNF | Calidad ISO | Prueba y meta | Resultado y evidencia |
+|---|---|---|---|
+| RFN-01 — RF-10 | Eficiencia de desempeño / comportamiento temporal | Aplicar sensibilidad sin reiniciar pipeline; alerta <300 ms y pipeline local ≤200 ms | **Pendiente semana 3**: requiere medición en el teléfono. |
+| RFN-02 | Pendiente de especificación original | Meta y prueba no disponibles en los archivos revisados | **Pendiente**: recuperar identificador y criterio originales; no se inventan. |
+| RFN-03 — RF-10, RF-DF | Capacidad de interacción / inclusividad (NTC 5854) | Controles accesibles con lector de pantalla y alto contraste; prueba manual con TalkBack | **Pendiente semana 3**: no hay prueba manual ni captura en esta entrega. |
+| RFN-04 — RF-10, RF-DF | Seguridad / confidencialidad (Ley 1581 de 2012) | Esquema y datos de prueba sin credenciales reales; contraseñas como hash y direcciones locales | **Revisión de archivos**: `db/seed.sql` usa credenciales ficticias y `contrasena_hash`; no se guardan credenciales reales. |
+| RFN-05 | Pendiente de especificación original | Meta y prueba no disponibles en los archivos revisados | **Pendiente**: recuperar identificador y criterio originales; no se inventan. |
+| RFN-06 — RF-10, RF-DF | Mantenibilidad / capacidad para ser probado | Servicios con dobles, sin SQLite: resultado válido y rechazo/ausencia por servicio | **Verificado** en la suite completa: 15 pruebas de servicios pasaron con dobles, sin abrir SQLite. Evidencia: `test/servicios_test.dart`. |
+| RFN-07 — RF-DF | Fiabilidad / recuperabilidad | Guardar 10 destinos, abrir conexión nueva; recuperar 10/10 | **Verificado**: 10 de 10 destinos se recuperaron tras abrir una conexión nueva. Evidencia: caso RFN-07 de `test/persistencia_test.dart`. |
+| RFN-08 — RF-10 | Eficiencia de desempeño / comportamiento temporal | 20 GET consecutivos desde cliente HTTP; cada respuesta completa ≤50 ms, sin usar promedio | **No cumple en las dos mediciones API**: 19/20 cumplieron en cada ejecución. La prueba enfocada registró 210.255 ms en la primera respuesta; la suite completa registró 242.875 ms. En esta última, las otras 19 quedaron entre 15.642 y 42.252 ms. Evidencia: salida de `test/rnf_desempeno_test.dart`. Se conserva el umbral. |
 
-**Cambios frente al modelo previo:** `usuario` sin `estado`; `configuracion` sin `distancia_alerta` (aparece en HU-11 pero no en RF-10); `modo_tonos` toma los valores `frecuencia_simple` y `espacializada`; `volumen_maestro` entre 50 y 95; se agrega `fecha_actualizacion`; `destino_frecuente` exige latitud y longitud; etiqueta unica por usuario sin distinguir mayusculas.
+RFN-01 y RFN-03 no están verificados: permanecen pendientes para la semana 3.
 
-| Operacion del repositorio | RF | Para que se necesita |
-|---|---|---|
-| `RepositorioUsuarios.buscarPorId` | RF-10, RF-DF | Que negocio verifique que el usuario existe |
-| `RepositorioConfiguracion.obtener` | RF-10 | Leer las preferencias vigentes (null si no hay) |
-| `RepositorioConfiguracion.guardar` | RF-10 | Persistir las preferencias; rechaza valores invalidos |
-| `RepositorioDestinos.guardar` | RF-DF | Persistir el destino y obtener su id real |
-| `RepositorioDestinos.buscarPorId` | RF-DF | Recuperar el destino o representar su ausencia |
-| `RepositorioDestinos.listarPorUsuario` | RF-DF | Mostrar los destinos del usuario |
+## 4. Ejecución
 
-**Separacion de capas.** El repositorio solo consulta y guarda; las reglas de negocio las aplica el servicio en la semana 2; las pantallas y endpoints no contienen SQL. **Transacciones:** cada operacion es una sola sentencia atomica y el repositorio es quien la confirma o revierte (SQLite). **Conexiones:** `BaseDatos` abre una conexion por archivo y quien la abre debe llamar a `cerrar()`; cada prueba abre y cierra la suya. **Errores:** valor fuera de rango = ERR-15; no se pudo guardar, duplicado o usuario inexistente = ERR-16.
+### Requisitos
 
-## 5. Como repetir la verificacion
-Requisitos: Flutter 3.47.8 y Dart 3.13.7; sqflite 2.4.5, path 1.9.1 y sqflite_common_ffi 2.4.5. No se necesita emulador ni credenciales.
+Flutter 3.47.8 y Dart 3.13.7; SQLite en modo FFI para el servidor y las pruebas. No se necesita emulador ni credenciales. Ejecuta los comandos desde `app_vista`.
 
-```
-cd app_vista
+```sh
 flutter pub get
-flutter test test/persistencia_test.dart
+flutter analyze
+flutter test
 ```
-**Estado inicial:** cada prueba crea un archivo SQLite temporal desde `db/schema.sql` y `db/seed.sql`: usuario 1 con configuracion (0.5, 1.2x, frecuencia simple, volumen 60) y destinos "Casa" y "Universidad"; usuario 2 sin configuracion ni destinos. **Resultado esperado:** 13 pruebas y el mensaje `All tests passed!`. **Evidencias:** captura de la terminal en `docs/evidencias/`.
 
-Si falla con "Failed to load dynamic library sqlite3.dll" (Windows), descargar `sqlite3.dll` de sqlite.org y colocarlo en la carpeta `app_vista`.
+La suite incluye persistencia, servicios con dobles, API HTTP y RFN-08. En la ejecución final, 35 pruebas pasaron y falló RFN-08 porque la primera respuesta tardó 242.875 ms. El test falla si cualquier respuesta supera 50 ms; no se usa el promedio para decidir.
 
-## 6. Probado y pendiente
-**Probado (semana 1):** lectura, escritura y persistencia real en conexion nueva; id inexistente; restricciones de rango, etiqueta unica y clave foranea; recuperabilidad (RFN-07) y tiempo de lectura (RFN-08); dobles en memoria para los servicios (RFN-06).
-**Pendiente semana 2:** `ConfiguracionService` y servicio de destinos con sus reglas (RN-06, RN-14), contratos de API, pruebas de servicios con el repositorio simulado.
-**Pendiente semana 3:** pantallas accesibles (RFN-03), aplicacion de la sensibilidad en caliente y medicion de latencia en el telefono (RFN-01), flujo completo.
+### Servidor
+
+```sh
+dart run bin/server.dart
+```
+
+- Puerto: variable `PORT`; por defecto `8080`.
+- Archivo SQLite: variable `DB_PATH`; por defecto `vista.db` en la carpeta actual.
+- URL local: `http://localhost:8080`.
+
+En PowerShell, por ejemplo:
+
+```powershell
+$env:PORT = "8080"
+$env:DB_PATH = "vista.db"
+dart run bin/server.dart
+```
+
+Si el archivo de `DB_PATH` no existe, el servidor crea esquema y semilla inicial. Para reiniciar los datos de prueba, detén el servidor, elimina ese archivo de base de datos y vuelve a iniciarlo. Hazlo solo con la base de pruebas.
+
+### Restablecer y comprobar la base de pruebas
+
+Las pruebas crean su propio archivo temporal a partir de `db/schema.sql` y `db/seed.sql`, y lo eliminan al terminar. El usuario 1 inicia con configuración (0.5, 1.2, `frecuencia_simple`, volumen 60) y destinos “Casa” y “Universidad”; el usuario 2 inicia sin configuración ni destinos.
+
+### Ejemplos curl
+
+Obtener configuración:
+
+```sh
+curl.exe http://localhost:8080/api/usuarios/1/configuracion
+```
+
+Guardar configuración:
+
+```sh
+curl.exe -X PUT http://localhost:8080/api/usuarios/1/configuracion -H "Content-Type: application/json" -d "{\"sensibilidad\":0.7,\"velocidad_voz\":1.5,\"modo_tonos\":\"espacializada\",\"volumen_maestro\":80}"
+```
+
+Crear destino frecuente (respuesta 201 con `id_destino` real):
+
+```sh
+curl.exe -X POST http://localhost:8080/api/usuarios/1/destinos -H "Content-Type: application/json" -d "{\"etiqueta\":\"Parque\",\"latitud\":4.62,\"longitud\":-74.08}"
+```
+
+Buscar destino por id:
+
+```sh
+curl.exe http://localhost:8080/api/destinos/1
+```
+
+Listar destinos de un usuario:
+
+```sh
+curl.exe http://localhost:8080/api/usuarios/1/destinos
+```
+
+## 5. Relevo a interfaz
+
+- Configuración: GET y PUT por id de usuario. Los campos del JSON son `sensibilidad`, `velocidad_voz`, `modo_tonos`, `volumen_maestro` y `fecha_actualizacion`.
+- Destinos: POST para guardar; GET por id; GET de la lista por usuario. El JSON de destino entrega `id_destino`, `id_usuario`, `etiqueta`, `latitud` y `longitud`.
+- Códigos: 400 entrada inválida, 404 recurso/usuario ausente, 409 etiqueta duplicada, 500 fallo interno genérico.
+- Origen CORS: permite `http://localhost` y sus puertos, además de `http://127.0.0.1` y sus puertos. Métodos habilitados: GET, POST, PUT y OPTIONS.
+- Pendientes de calidad: RFN-01 (latencia del pipeline), RFN-03 (accesibilidad manual), RN-06/RN-14 (reglas por precisar), RFN-02/RFN-05 (definiciones fuente) y RFN-08 (primera respuesta API por encima del umbral en la medición registrada).
+
+## 6. Checklist de entrega
+
+| Criterio | Estado y evidencia |
+|---|---|
+| Prioridad y alcance RF-10 / RF-DF conservados | **Cumple**: esta documentación y servicios mantienen prioridad 1 y 2; UI, voz, rutas, nube y permisos quedan fuera. |
+| Servicios, reglas y errores documentados | **Cumple**: sección 1 y `lib/servicios/`; RN-06/RN-14 se identifican como TODO por falta de texto fuente. |
+| API documentada con ejemplos coincidentes | **Cumple**: sección 2; JSON snake_case, rutas y códigos reflejan handlers y serializadores. |
+| Matriz RFN-01..08 sin renumerar | **Cumple con pendientes explícitos**: sección 3; RFN-02 y RFN-05 esperan su definición original. |
+| Ejecución y reinicio de datos explicados | **Cumple**: sección 4, comandos, variables, semilla y ejemplos curl. |
+| Relevo a interfaz y CORS documentados | **Cumple**: sección 5. |
+| Pruebas de persistencia, servicios y API | **Cumple**: en la suite completa pasaron persistencia (13), servicios (15), API (6) y widget (1). Total: 35 pruebas pasaron; RFN-08 fue la única prueba fallida. |
+| RFN-08 API ≤50 ms en las 20 lecturas | **No cumple** en ambas mediciones: 19/20. En la suite completa la primera respuesta fue 242.875 ms; meta conservada. |
+| `flutter analyze` sin avisos/errores | **Cumple**: `No issues found!` en la ejecución final. |
+| RFN-01 y RFN-03 verificados | **Pendiente semana 3**: medición en dispositivo y prueba manual de accesibilidad. |
+| Sin credenciales reales y con esquema sin cambios | **Revisión**: datos ficticios en semilla; `db/schema.sql` no se modificó para esta etapa. |
+
+## 7. Alcance pendiente
+
+La sensibilidad en caliente y su latencia (RFN-01), accesibilidad con lector de pantalla (RFN-03), definiciones de RFN-02/RFN-05 y textos de RN-06/RN-14 requieren información o trabajo fuera de esta etapa. RF-DF sigue siendo un identificador provisional por confirmar.

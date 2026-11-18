@@ -2,6 +2,7 @@ import 'package:shelf/shelf.dart';
 
 import '../servicios/destinos_service.dart';
 import 'json_destino.dart';
+import 'lectura_json.dart';
 import 'registro_errores.dart';
 import 'respuestas.dart';
 
@@ -52,7 +53,9 @@ class HandlersDestinos {
       contexto: 'GET /api/usuarios/{id}/destinos',
       registro: registro,
       accion: () async {
-        final destinos = await servicio.listarPorUsuario(leerIdDeRuta(idUsuario));
+        final destinos = await servicio.listarPorUsuario(
+          leerIdDeRuta(idUsuario),
+        );
         return respuestaListaJson(destinos.map(destinoAJson).toList());
       },
     );
