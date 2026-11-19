@@ -101,7 +101,7 @@ void main() {
   });
 
   test(
-    'RF-DF POST devuelve id real persistido en una conexion nueva',
+    'RF-14 POST devuelve id real persistido en una conexion nueva',
     () async {
       final respuesta = await cliente.post(
         entorno.baseUri.resolve('/api/usuarios/1/destinos'),
@@ -132,7 +132,7 @@ void main() {
     },
   );
 
-  test('RF-DF rechazo no crea registros; ausencias e ids invalidos', () async {
+  test('RF-14 rechazo no crea registros; ausencias e ids invalidos', () async {
     final antes = await contarDestinos();
     final duplicado = await cliente.post(
       entorno.baseUri.resolve('/api/usuarios/1/destinos'),
@@ -172,7 +172,7 @@ void main() {
     expect(await contarDestinos(), antes);
   });
 
-  test('RF-DF buscar, listar y listar vacio', () async {
+  test('RF-14 buscar, listar y listar vacio', () async {
     final encontrado = await cliente.get(
       entorno.baseUri.resolve('/api/destinos/1'),
     );

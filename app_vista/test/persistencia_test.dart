@@ -112,7 +112,7 @@ void main() {
     expect(c.volumenMaestro, 60);
   });
 
-  test('RF-DF: guardar devuelve id real y persiste en una conexion nueva', () async {
+  test('RF-14: guardar devuelve id real y persiste en una conexion nueva', () async {
     var bd = await abrir();
     final guardado = await RepositorioDestinosSqlite(bd).guardar(const DestinoFrecuente(
       idUsuario: 1,
@@ -131,12 +131,12 @@ void main() {
     expect(leido.latitud, 4.65);
   });
 
-  test('RF-DF: buscar un id inexistente devuelve null', () async {
+  test('RF-14: buscar un id inexistente devuelve null', () async {
     final repo = RepositorioDestinosSqlite(await abrir());
     expect(await repo.buscarPorId(9999), isNull);
   });
 
-  test('RF-DF: etiqueta repetida (sin distinguir mayusculas) y usuario inexistente se rechazan', () async {
+  test('RF-14: etiqueta repetida (sin distinguir mayusculas) y usuario inexistente se rechazan', () async {
     final repo = RepositorioDestinosSqlite(await abrir());
     final duplicada = await capturar(() => repo.guardar(const DestinoFrecuente(
           idUsuario: 1,
@@ -157,7 +157,7 @@ void main() {
     expect(huerfano, isA<UsuarioInexistenteError>());
   });
 
-  test('RF-DF: listar devuelve los destinos del usuario ordenados por etiqueta', () async {
+  test('RF-14: listar devuelve los destinos del usuario ordenados por etiqueta', () async {
     final repo = RepositorioDestinosSqlite(await abrir());
     final u1 = await repo.listarPorUsuario(1);
     expect(u1.map((d) => d.etiqueta).toList(), ['Casa', 'Universidad']);
@@ -171,7 +171,7 @@ void main() {
     expect(await RepositorioDestinosSqlite(bd).listarPorUsuario(1), isEmpty);
   });
 
-  test('RFN-07 (recuperabilidad): 10 destinos guardados se recuperan 10/10', () async {
+  test('Prueba complementaria (recuperabilidad): 10 destinos se recuperan 10/10', () async {
     var bd = await abrir();
     var repo = RepositorioDestinosSqlite(bd);
     for (var i = 1; i <= 10; i++) {
@@ -190,7 +190,7 @@ void main() {
     expect((await repo.listarPorUsuario(2)).length, 10);
   });
 
-  test('RFN-08 (tiempo): 20 lecturas consecutivas de configuracion, cada una <= 50 ms', () async {
+  test('Prueba complementaria (tiempo SQLite): 20 lecturas de configuracion <= 50 ms', () async {
     final repo = RepositorioConfiguracionSqlite(await abrir());
     await repo.obtener(1); // calentamiento
     for (var i = 0; i < 20; i++) {
@@ -201,7 +201,7 @@ void main() {
     }
   });
 
-  test('RFN-06 (testabilidad): los dobles en memoria cumplen el contrato', () async {
+  test('Prueba complementaria (testabilidad): los dobles en memoria cumplen el contrato', () async {
     final config = RepositorioConfiguracionMemoria(usuariosExistentes: [1]);
     expect(await config.obtener(1), isNull);
     final guardada = await config.guardar(const Configuracion(idUsuario: 1, sensibilidad: 0.4));

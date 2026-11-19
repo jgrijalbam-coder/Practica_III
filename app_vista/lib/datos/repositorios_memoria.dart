@@ -3,7 +3,7 @@ import 'modelos_datos.dart';
 import 'repositorio_configuracion.dart';
 import 'repositorio_destinos.dart';
 
-/// Dobles de prueba para probar los servicios sin base real (RFN-06).
+/// Dobles de prueba para probar los servicios sin base real.
 class RepositorioConfiguracionMemoria implements RepositorioConfiguracion {
   RepositorioConfiguracionMemoria({Iterable<int> usuariosExistentes = const []})
       : _usuarios = usuariosExistentes.toSet();

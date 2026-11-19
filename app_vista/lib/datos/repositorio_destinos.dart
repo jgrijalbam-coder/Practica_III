@@ -1,6 +1,6 @@
 import 'modelos_datos.dart';
 
-/// CONTRATO de RF-DF.
+/// CONTRATO de RF-14.
 abstract class RepositorioDestinos {
   /// Guarda y devuelve el destino con su id real.
   /// Lanza RestriccionVioladaError (etiqueta repetida o valor invalido) o UsuarioInexistenteError.

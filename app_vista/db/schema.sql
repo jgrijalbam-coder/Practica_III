@@ -1,4 +1,4 @@
--- VISTA - Esquema minimo (semana 13) para RF-10 (preferencias) y RF-DF (destinos frecuentes).
+-- VISTA - Esquema minimo (semana 13) para RF-10 (preferencias) y RF-14 (destinos frecuentes).
 -- Motor: SQLite. Fechas en texto ISO-8601. Requiere PRAGMA foreign_keys = ON en cada conexion.
 
 CREATE TABLE usuario (

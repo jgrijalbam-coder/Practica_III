@@ -6,7 +6,7 @@ import '../dominio/excepciones_dominio.dart';
 import '../dominio/reglas_configuracion.dart' show validarIdPositivo;
 import '../dominio/reglas_destinos.dart';
 
-/// Logica de negocio de RF-DF (destinos frecuentes, HU-8).
+/// Logica de negocio de RF-14 (destinos frecuentes, HU-8).
 ///
 /// No conoce HTTP ni SQL: depende de las interfaces abstractas de repositorio,
 /// inyectadas por constructor.

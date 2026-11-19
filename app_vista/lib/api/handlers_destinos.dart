@@ -6,7 +6,7 @@ import 'lectura_json.dart';
 import 'registro_errores.dart';
 import 'respuestas.dart';
 
-/// Handlers de RF-DF. Solo parsean la peticion, llaman al servicio y devuelven
+/// Handlers de RF-14. Solo parsean la peticion, llaman al servicio y devuelven
 /// la respuesta: no contienen SQL ni reglas de negocio.
 class HandlersDestinos {
   const HandlersDestinos({required this.servicio, required this.registro});

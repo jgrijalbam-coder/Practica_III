@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'dobles_espia.dart';
 
-/// RFN-06 (capacidad para ser probado): los servicios se prueban con dobles en
+/// Prueba complementaria de testabilidad: los servicios se prueban con dobles en
 /// memoria, SIN abrir ninguna conexion SQLite. Por servicio hay un caso valido
 /// y un caso de rechazo/ausencia, y se verifica que en el rechazo no se escribe.
 
@@ -122,7 +122,7 @@ void main() {
     });
   });
 
-  group('DestinosService (RF-DF)', () {
+  group('DestinosService (RF-14)', () {
     late EspiaUsuarios usuarios;
     late EspiaDestinos destinos;
     late DestinosService servicio;

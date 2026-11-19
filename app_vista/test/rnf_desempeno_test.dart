@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'servidor_pruebas.dart';
 
 void main() {
-  test('RFN-08: 20 lecturas HTTP de configuracion, cada una <= 50 ms', () async {
+  test('Prueba complementaria: 20 lecturas HTTP, cada una <= 50 ms', () async {
     final entorno = await ServidorPruebas.iniciar();
     final cliente = http.Client();
     final tiemposMs = <double>[];
@@ -25,13 +25,13 @@ void main() {
         if (cumple) respuestasCumplidas++;
         // ignore: avoid_print
         print(
-          'RFN-08 lectura $indice: ${milisegundos.toStringAsFixed(3)} ms, '
+          'Lectura HTTP $indice: ${milisegundos.toStringAsFixed(3)} ms, '
           'HTTP ${respuesta.statusCode}, ${cumple ? "cumple" : "no cumple"}',
         );
       }
       // ignore: avoid_print
       print(
-        'RFN-08: $respuestasCumplidas/20 cumplen el umbral individual de 50 ms.',
+        'Prueba HTTP: $respuestasCumplidas/20 cumplen el umbral individual de 50 ms.',
       );
       expect(tiemposMs, hasLength(20));
       expect(

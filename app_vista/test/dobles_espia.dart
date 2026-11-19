@@ -4,7 +4,7 @@ import 'package:app_vista/datos/repositorio_configuracion.dart';
 import 'package:app_vista/datos/repositorio_destinos.dart';
 import 'package:app_vista/datos/repositorio_usuarios.dart';
 
-/// Dobles de prueba con contador de llamadas (RFN-06).
+/// Dobles de prueba con contador de llamadas para escenarios complementarios.
 ///
 /// No abren conexion real: permiten comprobar que el servicio NO escribe cuando
 /// rechaza y que solo lee cuando consulta.

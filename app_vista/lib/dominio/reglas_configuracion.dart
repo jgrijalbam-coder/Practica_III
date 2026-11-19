@@ -2,13 +2,9 @@ import '../datos/modelos_datos.dart';
 import 'excepciones_dominio.dart';
 
 /// Reglas de RF-10 (configurar preferencias). Viven en el dominio, sin HTTP ni
-/// SQL, para que las use el servicio y las pantallas de la semana 3.
+/// SQL, para que las use el servicio
 ///
-/// TODO (RN-06 / RN-14): el README del proyecto no documenta el texto de RN-06
-/// ni de RN-14, asi que no se inventan reglas. Este archivo solo aplica los
-/// rangos del enunciado de RF-10, que coinciden con los CHECK de
-/// `db/schema.sql`. Cuando el equipo formalice RN-06 y RN-14 se agregan aqui.
-
+///
 /// Sensibilidades que acepta el motor de deteccion (RF-10).
 /// No puede ser `const`: los `double` no tienen igualdad primitiva.
 const List<double> sensibilidadesPermitidas = [0.4, 0.5, 0.7];

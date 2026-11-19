@@ -1,6 +1,6 @@
 import 'excepciones_dominio.dart';
 
-/// Reglas de RF-DF (destinos frecuentes). Sin HTTP ni SQL.
+/// Reglas de RF-14 (destinos frecuentes). Sin HTTP ni SQL.
 
 const double latitudMinima = -90;
 const double latitudMaxima = 90;
@@ -26,7 +26,7 @@ void validarCoordenadas(double latitud, double longitud) {
   }
 }
 
-/// La columna `direccion` es NOT NULL en el esquema y RF-DF no la pide en la
+/// La columna `direccion` es NOT NULL en el esquema y RF-14 no la pide en la
 /// API (solo etiqueta y coordenadas). Cuando el cliente no la envia se deriva
 /// un texto legible con las coordenadas, para no romper el esquema.
 String derivarDireccion(String? direccionRecibida, double latitud, double longitud) {
