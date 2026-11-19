@@ -1,4 +1,6 @@
-import 'package:sqflite/sqflite.dart';
+// API común sin dependencias del motor Flutter: el servidor Dart configura
+// sqflite_common_ffi y la app puede configurar la fábrica de sqflite.
+import 'package:sqflite_common/sqflite.dart';
 
 /// Duena de la conexion SQLite. Abre UNA conexion por archivo, activa las
 /// claves foraneas y, solo si la base es nueva, ejecuta el esquema y la semilla.
