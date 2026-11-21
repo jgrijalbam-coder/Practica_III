@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  camera: ^0.11.2
   cupertino_icons: ^1.0.8
   sqflite: ^2.4.5
   # API SQLite comun (Dart puro): la usan los repositorios y el servidor de la
@@ -21,6 +22,8 @@ dependencies:
   # API HTTP de la semana 14 (servicio y enrutador).
   shelf: ^1.4.2
   shelf_router: ^1.1.4
+  image: ^4.5.4
+  permission_handler: ^12.0.1
   ultralytics_yolo: ^0.7.2
 
 dev_dependencies:

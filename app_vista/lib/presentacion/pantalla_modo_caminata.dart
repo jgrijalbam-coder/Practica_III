@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../modelos/solicitud_alerta.dart';
 import '../nucleo/orquestador.dart';
+import 'pantalla_camara.dart';
 
 class PantallaModoCaminata extends StatefulWidget {
   const PantallaModoCaminata({required this.orq, super.key});
@@ -216,6 +217,18 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const PantallaCamara(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Probar vista previa de cámara'),
+                  ),
                   const SizedBox(height: 24),
                   Text(
                     'Acerca de esta versión',
@@ -228,9 +241,9 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                   const SizedBox(height: 8),
                   Text(
                     'Esta versión permite probar la interfaz y el '
-                    'cambio de estado de la asistencia. La cámara, '
-                    'la detección de obstáculos, el GPS y el audio '
-                    'real todavía no están implementados.',
+                    'cambio de estado de la asistencia y la vista previa '
+                    'de cámara. La detección real de obstáculos, el GPS '
+                    'y el audio real todavía no están implementados.',
                     style: TextStyle(
                       fontSize: 15,
                       height: 1.5,
