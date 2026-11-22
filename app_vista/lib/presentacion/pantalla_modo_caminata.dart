@@ -1,15 +1,29 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../datos/modelos_datos.dart';
 import '../modelos/solicitud_alerta.dart';
 import '../nucleo/orquestador.dart';
+import '../servicios/configuracion_service.dart';
+import '../vision/detector_yolo.dart';
 import 'pantalla_camara.dart';
+import 'pantalla_configuracion.dart';
 
 class PantallaModoCaminata extends StatefulWidget {
-  const PantallaModoCaminata({required this.orq, super.key});
+  const PantallaModoCaminata({
+    required this.orq,
+    this.usuario,
+    this.servicioConfiguracion,
+    this.onCerrarSesion,
+    super.key,
+  });
 
   final Orquestador orq;
+  final Usuario? usuario;
+  final ConfiguracionService? servicioConfiguracion;
+  final VoidCallback? onCerrarSesion;
 
   @override
   State<PantallaModoCaminata> createState() => _PantallaModoCaminataState();
@@ -19,6 +33,7 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
   bool _asistenciaActiva = true;
   SolicitudAlerta? _ultimaAlerta;
   StreamSubscription<SolicitudAlerta>? _suscripcion;
+  Configuracion? _configuracion;
 
   @override
   void initState() {
@@ -29,6 +44,46 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
         _ultimaAlerta = alerta;
       });
     });
+    if (widget.usuario != null && widget.servicioConfiguracion != null) {
+      unawaited(_cargarConfiguracion());
+    }
+  }
+
+  Future<void> _cargarConfiguracion() async {
+    try {
+      final configuracion = await widget.servicioConfiguracion!.obtener(
+        widget.usuario!.idUsuario,
+      );
+      if (!mounted) return;
+      setState(() => _configuracion = configuracion);
+      _aplicarSensibilidad(configuracion.sensibilidad);
+    } catch (_) {
+      // Una cuenta nueva ya crea preferencias por defecto; esto solo protege
+      // sesiones antiguas creadas antes de esa inicialización.
+    }
+  }
+
+  void _aplicarSensibilidad(double valor) {
+    final detector = widget.orq.detector;
+    if (detector is DetectorYolo) detector.umbralConfianza = valor;
+  }
+
+  Future<void> _abrirConfiguracion() async {
+    final usuario = widget.usuario;
+    final servicio = widget.servicioConfiguracion;
+    if (usuario == null || servicio == null) return;
+    final guardada = await Navigator.of(context).push<Configuracion>(
+      MaterialPageRoute(
+        builder: (_) => PantallaConfiguracion(
+          usuario: usuario,
+          servicio: servicio,
+        ),
+      ),
+    );
+    if (guardada != null && mounted) {
+      setState(() => _configuracion = guardada);
+      _aplicarSensibilidad(guardada.sensibilidad);
+    }
   }
 
   @override
@@ -71,6 +126,20 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
             Text('VISTA', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
+        actions: [
+          if (widget.servicioConfiguracion != null)
+            IconButton(
+              tooltip: 'Configuración',
+              onPressed: _abrirConfiguracion,
+              icon: const Icon(Icons.tune),
+            ),
+          if (widget.onCerrarSesion != null)
+            IconButton(
+              tooltip: 'Cerrar sesión',
+              onPressed: widget.onCerrarSesion,
+              icon: const Icon(Icons.logout),
+            ),
+        ],
       ),
       body: SafeArea(
         child: Center(
@@ -89,7 +158,9 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Bienvenido a VISTA',
+                    widget.usuario == null
+                        ? 'Bienvenido a VISTA'
+                        : 'Hola, ${widget.usuario!.nombre}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 28,
@@ -138,8 +209,10 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                             const SizedBox(height: 10),
                             Text(
                               _asistenciaActiva
-                                  ? 'El modo de demostración está activo.'
-                                  : 'Pulsa el botón para iniciar la demostración.',
+                                  ? kIsWeb
+                                        ? 'La web muestra la cámara; YOLO en vivo requiere la app Android.'
+                                        : 'Abre la cámara para iniciar la detección en vivo.'
+                                  : 'Pulsa el botón para activar la asistencia.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
@@ -222,7 +295,14 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          builder: (_) => const PantallaCamara(),
+                          builder: (_) => PantallaCamara(
+                            detector: widget.orq.detector is DetectorYolo
+                                ? widget.orq.detector as DetectorYolo
+                                : null,
+                            umbralConfianza: _configuracion?.sensibilidad ?? 0.5,
+                            velocidadVoz: _configuracion?.velocidadVoz ?? 1.2,
+                            volumenVoz: _configuracion?.volumenMaestro ?? 60,
+                          ),
                         ),
                       );
                     },
@@ -240,10 +320,11 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Esta versión permite probar la interfaz y el '
-                    'cambio de estado de la asistencia y la vista previa '
-                    'de cámara. La detección real de obstáculos, el GPS '
-                    'y el audio real todavía no están implementados.',
+                    'En Android, el modelo YOLO identifica objetos y su '
+                    'posición aproximada en la imagen. La versión web solo '
+                    'muestra la cámara. Android anuncia por voz el objeto '
+                    'principal y su posición aproximada. No se calcula '
+                    'distancia real.',
                     style: TextStyle(
                       fontSize: 15,
                       height: 1.5,

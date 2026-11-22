@@ -66,10 +66,13 @@ class PreprocesadorFotograma {
     if (fotograma.planes.length == 1 &&
         fotograma.planes.first.bytes.length >=
             fotograma.width * fotograma.height * 4) {
+      final plano = fotograma.planes.first;
       return img.Image.fromBytes(
         width: fotograma.width,
         height: fotograma.height,
-        bytes: fotograma.planes.first.bytes,
+        bytes: plano.bytes.buffer,
+        bytesOffset: plano.bytes.offsetInBytes,
+        rowStride: plano.bytesPerRow,
         order: img.ChannelOrder.bgra,
       );
     }

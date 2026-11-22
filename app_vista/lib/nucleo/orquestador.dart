@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import '../audio/servicio_audio.dart';
 import '../modelos/deteccion.dart';
 import '../modelos/enums.dart';
@@ -44,7 +45,8 @@ class Orquestador {
       Sector.frente => 'al frente',
       Sector.atras => 'atrás',
     };
-    final metros = d.distanciaMetros.toStringAsFixed(1);
+    final metros = d.distanciaMetros?.toStringAsFixed(1);
+    if (metros == null) return '${d.clase} $lado';
     return switch (d.nivel) {
       NivelRiesgo.inminente => '¡Cuidado! ${d.clase} $lado, a $metros metros',
       NivelRiesgo.preventivo => '${d.clase} $lado, a $metros metros',
