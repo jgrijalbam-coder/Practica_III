@@ -21,7 +21,7 @@ class VistaYolo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => YOLOView(
-    modelPath: 'yolo26n',
+    modelPath: 'yolo26s',
     task: YOLOTask.detect,
     confidenceThreshold: umbralConfianza,
     lensFacing: LensFacing.back,
