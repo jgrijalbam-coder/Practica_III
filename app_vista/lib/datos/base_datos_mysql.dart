@@ -12,6 +12,12 @@ class BaseDatosMySql {
     String variable(String nombre, String defecto) =>
         Platform.environment[nombre] ?? defecto;
 
+    final rutaCertificado = variable('MYSQL_CA_CERT_PATH', '').trim();
+    final contextoSeguridad = rutaCertificado.isEmpty
+        ? null
+        : (SecurityContext(withTrustedRoots: true)
+            ..setTrustedCertificates(rutaCertificado));
+
     final conexion = await MySqlConnection.connect(
       ConnectionSettings(
         host: variable('MYSQL_HOST', '127.0.0.1'),
@@ -20,6 +26,7 @@ class BaseDatosMySql {
         password: variable('MYSQL_PASSWORD', ''),
         db: variable('MYSQL_DATABASE', 'vista'),
         useSSL: variable('MYSQL_SSL', 'false').toLowerCase() == 'true',
+        securityContext: contextoSeguridad,
       ),
     );
     return BaseDatosMySql._(conexion);
