@@ -12,6 +12,8 @@ RUN curl --fail --location --retry 3 \
 
 ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
+RUN git config --global --add safe.directory /opt/flutter
+
 WORKDIR /app
 
 COPY . .
