@@ -7,7 +7,20 @@ class ErrorAutenticacion implements Exception {
   final String mensaje;
 }
 
-class AutenticacionService {
+abstract interface class ServicioAutenticacion {
+  Future<Usuario> registrar({
+    required String nombre,
+    required String correo,
+    required String contrasena,
+  });
+
+  Future<Usuario> iniciarSesion({
+    required String correo,
+    required String contrasena,
+  });
+}
+
+class AutenticacionService implements ServicioAutenticacion {
   AutenticacionService({
     required this.repositorio,
     HasheadorContrasenas? hasheador,
@@ -16,6 +29,7 @@ class AutenticacionService {
   final RepositorioAutenticacion repositorio;
   final HasheadorContrasenas _hasheador;
 
+  @override
   Future<Usuario> registrar({
     required String nombre,
     required String correo,
@@ -45,10 +59,13 @@ class AutenticacionService {
         hashContrasena: hash,
       );
     } catch (_) {
-      throw const ErrorAutenticacion('No se pudo crear la cuenta. Inténtalo otra vez.');
+      throw const ErrorAutenticacion(
+        'No se pudo crear la cuenta. Inténtalo otra vez.',
+      );
     }
   }
 
+  @override
   Future<Usuario> iniciarSesion({
     required String correo,
     required String contrasena,

@@ -1,35 +1,39 @@
-import '../datos/base_datos.dart';
-import '../datos/repositorio_configuracion_sqlite.dart';
-import '../datos/repositorio_destinos_sqlite.dart';
-import '../datos/repositorio_usuarios_sqlite.dart';
+import '../datos/base_datos_mysql.dart';
+import '../datos/repositorios_mysql.dart';
+import 'autenticacion_service.dart';
 import 'configuracion_service.dart';
 import 'destinos_service.dart';
 
 /// Servicios de la semana 14 ya cableados sobre una base abierta.
 class ServiciosVista {
-  const ServiciosVista({required this.configuracion, required this.destinos});
+  const ServiciosVista({
+    required this.autenticacion,
+    required this.configuracion,
+    required this.destinos,
+    required this.usuarios,
+  });
 
+  final AutenticacionService autenticacion;
   final ConfiguracionService configuracion;
   final DestinosService destinos;
+  final RepositorioUsuariosMySql usuarios;
 }
 
-/// Composicion de dependencias: repositorio SQLite -> servicio.
-///
-/// Aqui se ve quien administra la transaccion y quien cierra la conexion:
-/// la conexion la abre `BaseDatos.abrir` y la cierra quien la pidio con
-/// `BaseDatos.cerrar()`; cada repositorio ejecuta una unica sentencia atomica
-/// por operacion y SQLite la confirma o la revierte. Los servicios no abren
-/// conexiones ni manejan transacciones.
-ServiciosVista crearServicios(BaseDatos baseDatos) {
-  final usuarios = RepositorioUsuariosSqlite(baseDatos);
+/// Composicion de dependencias para la API: repositorios MySQL -> servicios.
+ServiciosVista crearServicios(BaseDatosMySql baseDatos) {
+  final usuarios = RepositorioUsuariosMySql(baseDatos);
   return ServiciosVista(
+    autenticacion: AutenticacionService(
+      repositorio: RepositorioAutenticacionMySql(baseDatos),
+    ),
     configuracion: ConfiguracionService(
       usuarios: usuarios,
-      configuracion: RepositorioConfiguracionSqlite(baseDatos),
+      configuracion: RepositorioConfiguracionMySql(baseDatos),
     ),
     destinos: DestinosService(
       usuarios: usuarios,
-      destinos: RepositorioDestinosSqlite(baseDatos),
+      destinos: RepositorioDestinosMySql(baseDatos),
     ),
+    usuarios: usuarios,
   );
 }

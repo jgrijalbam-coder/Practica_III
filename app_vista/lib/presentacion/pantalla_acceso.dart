@@ -10,7 +10,7 @@ class PantallaAcceso extends StatefulWidget {
     super.key,
   });
 
-  final AutenticacionService autenticacion;
+  final ServicioAutenticacion autenticacion;
   final Future<void> Function(Usuario usuario) onSesionIniciada;
 
   @override
@@ -81,7 +81,11 @@ class _PantallaAccesoState extends State<PantallaAcceso> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.accessibility_new, size: 72, color: colores.primary),
+                    Icon(
+                      Icons.accessibility_new,
+                      size: 72,
+                      color: colores.primary,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       _crearCuenta ? 'Crear cuenta de VISTA' : 'Iniciar sesión',
@@ -90,7 +94,7 @@ class _PantallaAccesoState extends State<PantallaAcceso> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Cuenta personal para la persona usuaria.',
+                      'Tu cuenta y preferencias se guardan en el servidor VISTA.',
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
@@ -103,7 +107,8 @@ class _PantallaAccesoState extends State<PantallaAcceso> {
                           prefixIcon: Icon(Icons.person_outline),
                           border: OutlineInputBorder(),
                         ),
-                        validator: (valor) => valor == null || valor.trim().isEmpty
+                        validator: (valor) =>
+                            valor == null || valor.trim().isEmpty
                             ? 'Escribe tu nombre.'
                             : null,
                       ),
@@ -118,7 +123,8 @@ class _PantallaAccesoState extends State<PantallaAcceso> {
                         prefixIcon: Icon(Icons.email_outlined),
                         border: OutlineInputBorder(),
                       ),
-                      validator: (valor) => valor == null || !valor.contains('@')
+                      validator: (valor) =>
+                          valor == null || !valor.contains('@')
                           ? 'Escribe un correo válido.'
                           : null,
                     ),
@@ -149,8 +155,8 @@ class _PantallaAccesoState extends State<PantallaAcceso> {
                           ),
                         ),
                       ),
-                      validator: (valor) => _crearCuenta &&
-                              (valor == null || valor.length < 8)
+                      validator: (valor) =>
+                          _crearCuenta && (valor == null || valor.length < 8)
                           ? 'Usa al menos 8 caracteres.'
                           : valor == null || valor.isEmpty
                           ? 'Escribe tu contraseña.'
