@@ -19,6 +19,7 @@ class BaseDatosMySql {
         user: variable('MYSQL_USER', 'root'),
         password: variable('MYSQL_PASSWORD', ''),
         db: variable('MYSQL_DATABASE', 'vista'),
+        useSSL: variable('MYSQL_SSL', 'false').toLowerCase() == 'true',
       ),
     );
     return BaseDatosMySql._(conexion);
