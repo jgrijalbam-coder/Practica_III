@@ -1,4 +1,4 @@
-# VISTA - Semana 14: servicios y API
+﻿# VISTA - Semana 14: servicios y API
 
 Arquitectura de Sistemas I - Universidad Central. Esta entrega implementa la lógica de negocio y la API de **RF-10** (configurar preferencias) y **RF-DF** (destinos frecuentes, identificador provisional por confirmar). La prioridad se conserva: RF-10 prioridad 1 y RF-DF prioridad 2.
 
@@ -182,3 +182,15 @@ curl.exe http://localhost:8080/api/usuarios/1/destinos
 ## 7. Alcance pendiente
 
 La sensibilidad en caliente y su latencia (RFN-01), accesibilidad con lector de pantalla (RFN-03), definiciones de RFN-02/RFN-05 y textos de RN-06/RN-14 requieren información o trabajo fuera de esta etapa. RF-DF sigue siendo un identificador provisional por confirmar.
+
+## Estado de la aplicación móvil y despliegue
+
+La versión Android ya conecta con la API desplegada en Render, que guarda los datos en MySQL de Aiven. La conexión se hace por HTTP al backend; la aplicación no se conecta directamente al servidor MySQL.
+
+- **RF-10 (configuración):** verificado manualmente por el equipo. Se cambió una preferencia desde el teléfono y el valor actualizado se consultó en MySQL Workbench.
+- **RF-DF (destinos frecuentes):** la pantalla móvil permite escribir una etiqueta, latitud y longitud, guardar el destino en la API y consultar la lista guardada para la cuenta. El servidor devuelve el identificador del destino. Las coordenadas se ingresan manualmente; no se obtiene la ubicación GPS automáticamente.
+- Para abrir la pantalla, iniciar sesión y tocar el icono de ubicación de la barra superior del modo caminata.
+- El teléfono necesita internet para guardar y consultar. El cable USB solo es necesario para instalar la APK.
+- Para crear una APK conectada a Render: `flutter build apk --release --dart-define=VISTA_API_URL=https://practica-iii.onrender.com`.
+
+La prueba de RF-DF desde Android/Workbench queda pendiente de ejecución manual después de instalar esta versión. Para verificarla en Workbench, consultar `destinos_frecuentes` filtrando por el `id_usuario` de la cuenta.

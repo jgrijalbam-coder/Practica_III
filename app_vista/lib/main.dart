@@ -77,6 +77,7 @@ class _VistaAppState extends State<VistaApp> {
               orq: widget.orquestador,
               usuario: _usuario,
               servicioConfiguracion: cuenta.configuracion,
+              servicioDestinos: cuenta.destinos,
               onCerrarSesion: _cerrarSesion,
             ),
     );

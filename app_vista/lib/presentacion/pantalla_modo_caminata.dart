@@ -7,15 +7,18 @@ import '../datos/modelos_datos.dart';
 import '../modelos/solicitud_alerta.dart';
 import '../nucleo/orquestador.dart';
 import '../servicios/configuracion_service.dart';
+import '../servicios/destinos_service.dart';
 import '../vision/detector_yolo.dart';
 import 'pantalla_camara.dart';
 import 'pantalla_configuracion.dart';
+import 'pantalla_destinos_frecuentes.dart';
 
 class PantallaModoCaminata extends StatefulWidget {
   const PantallaModoCaminata({
     required this.orq,
     this.usuario,
     this.servicioConfiguracion,
+    this.servicioDestinos,
     this.onCerrarSesion,
     super.key,
   });
@@ -23,6 +26,7 @@ class PantallaModoCaminata extends StatefulWidget {
   final Orquestador orq;
   final Usuario? usuario;
   final ConfiguracionService? servicioConfiguracion;
+  final DestinosService? servicioDestinos;
   final VoidCallback? onCerrarSesion;
 
   @override
@@ -74,16 +78,26 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
     if (usuario == null || servicio == null) return;
     final guardada = await Navigator.of(context).push<Configuracion>(
       MaterialPageRoute(
-        builder: (_) => PantallaConfiguracion(
-          usuario: usuario,
-          servicio: servicio,
-        ),
+        builder: (_) =>
+            PantallaConfiguracion(usuario: usuario, servicio: servicio),
       ),
     );
     if (guardada != null && mounted) {
       setState(() => _configuracion = guardada);
       _aplicarSensibilidad(guardada.sensibilidad);
     }
+  }
+
+  Future<void> _abrirDestinos() async {
+    final usuario = widget.usuario;
+    final servicio = widget.servicioDestinos;
+    if (usuario == null || servicio == null) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) =>
+            PantallaDestinosFrecuentes(usuario: usuario, servicio: servicio),
+      ),
+    );
   }
 
   @override
@@ -132,6 +146,12 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
               tooltip: 'Configuración',
               onPressed: _abrirConfiguracion,
               icon: const Icon(Icons.tune),
+            ),
+          if (widget.servicioDestinos != null)
+            IconButton(
+              tooltip: 'Destinos frecuentes',
+              onPressed: _abrirDestinos,
+              icon: const Icon(Icons.place_outlined),
             ),
           if (widget.onCerrarSesion != null)
             IconButton(
@@ -299,7 +319,8 @@ class _PantallaModoCaminataState extends State<PantallaModoCaminata> {
                             detector: widget.orq.detector is DetectorYolo
                                 ? widget.orq.detector as DetectorYolo
                                 : null,
-                            umbralConfianza: _configuracion?.sensibilidad ?? 0.5,
+                            umbralConfianza:
+                                _configuracion?.sensibilidad ?? 0.5,
                             velocidadVoz: _configuracion?.velocidadVoz ?? 1.2,
                             volumenVoz: _configuracion?.volumenMaestro ?? 60,
                           ),
